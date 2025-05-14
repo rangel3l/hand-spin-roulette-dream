@@ -23,8 +23,11 @@ export const RouletteWheel = ({ spinning, spinSpeed, direction, result, isFullsc
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     
-    // Set canvas dimensions
-    const size = Math.min(window.innerWidth * 0.8, 600);
+    // Set canvas dimensions - make it bigger in fullscreen mode
+    const size = isFullscreen 
+      ? Math.min(window.innerWidth * 0.9, window.innerHeight * 0.9, 900) // Larger in fullscreen
+      : Math.min(window.innerWidth * 0.8, 600);
+    
     canvas.width = size;
     canvas.height = size;
     
@@ -190,12 +193,14 @@ export const RouletteWheel = ({ spinning, spinSpeed, direction, result, isFullsc
     // Restore context state
     ctx.restore();
     
-    // Add text instead of numbers
+    // Add text - with improved readability for fullscreen
     ctx.save();
     ctx.translate(center.x, center.y);
     ctx.rotate(rotation);
     
-    ctx.font = "bold 16px Arial";
+    // Increase font size and add stroke for better visibility in fullscreen mode
+    const fontSize = isFullscreen ? 24 : 16;
+    ctx.font = `bold ${fontSize}px Arial`;
     ctx.fillStyle = "#FFFFFF";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
@@ -205,7 +210,8 @@ export const RouletteWheel = ({ spinning, spinSpeed, direction, result, isFullsc
       const wheelItem = wheelItems[i];
       
       // Position text in the middle of the segment
-      const textRadius = radius * 0.75;
+      // Move text slightly more outward in fullscreen for better positioning
+      const textRadius = radius * (isFullscreen ? 0.70 : 0.75);
       const x = textRadius * Math.cos(angle + anglePerSegment / 2);
       const y = textRadius * Math.sin(angle + anglePerSegment / 2);
       
@@ -213,6 +219,13 @@ export const RouletteWheel = ({ spinning, spinSpeed, direction, result, isFullsc
       ctx.save();
       ctx.translate(x, y);
       ctx.rotate(angle + anglePerSegment / 2 + Math.PI / 2);
+      
+      // Add text stroke for better visibility in fullscreen
+      if (isFullscreen) {
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 2;
+        ctx.strokeText(wheelItem.fullscreenText, 0, 0);
+      }
       
       // Display different text based on fullscreen state
       ctx.fillText(isFullscreen ? wheelItem.fullscreenText : wheelItem.text, 0, 0);
@@ -222,7 +235,7 @@ export const RouletteWheel = ({ spinning, spinSpeed, direction, result, isFullsc
     ctx.restore();
     
     // Draw pointer/needle at the top
-    const needleSize = 20;
+    const needleSize = isFullscreen ? 30 : 20; // Larger in fullscreen
     
     ctx.beginPath();
     ctx.moveTo(center.x, center.y - radius - 5);
@@ -234,11 +247,15 @@ export const RouletteWheel = ({ spinning, spinSpeed, direction, result, isFullsc
   };
   
   return (
-    <div className="roulette-container relative inline-block">
+    <div className={`roulette-container relative ${isFullscreen ? 'flex items-center justify-center w-full h-full' : 'inline-block'}`}>
       <canvas
         ref={canvasRef}
         className="rounded-full shadow-2xl"
-        style={{ maxWidth: "100%" }}
+        style={{ 
+          maxWidth: isFullscreen ? "none" : "100%",
+          width: isFullscreen ? "auto" : "100%",
+          height: isFullscreen ? "90vh" : "auto"
+        }}
       />
     </div>
   );
