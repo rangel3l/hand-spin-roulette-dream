@@ -1,73 +1,61 @@
-# Welcome to your Lovable project
 
-## Project info
+# Roulette Wheel with Hand Gesture Control
 
-**URL**: https://lovable.dev/projects/7e7ea012-3c44-42c0-bfb1-5b481a9f903e
+This project creates a roulette wheel that can be controlled using hand gestures through a webcam. It uses React for the frontend and Python (Eel + CVZone) for the backend.
 
-## How can I edit this code?
+## Project Structure
 
-There are several ways of editing your application.
+- **Frontend:** React application with Canvas-based roulette wheel
+- **Backend:** Python application using Eel for web communication and CVZone for hand tracking
 
-**Use Lovable**
+## Requirements
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/7e7ea012-3c44-42c0-bfb1-5b481a9f903e) and start prompting.
+### Frontend
+- Node.js and npm
 
-Changes made via Lovable will be committed automatically to this repo.
+### Backend
+- Python 3.7+
+- OpenCV (`cv2`)
+- CVZone (`pip install cvzone`)
+- Mediapipe (`pip install mediapipe`)
+- Eel (`pip install eel`)
 
-**Use your preferred IDE**
+## How to Run
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
+### Frontend (Development)
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Backend (Python)
+```sh
+cd python_backend
+pip install -r requirements.txt
+python app.py
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## How to Play
 
-**Use GitHub Codespaces**
+1. Start both the frontend and backend applications
+2. Position your hand in front of the webcam
+3. Move your hand left or right to control the wheel
+4. Fast hand movements will trigger the wheel to spin
+5. The wheel has numbers from 0 to 40
+6. Numbers 0, 10, 20, 30, and 40 are marked as "Again!" spots
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Features
 
-## What technologies are used for this project?
+- Interactive roulette wheel with 41 numbers (0-40)
+- Hand gesture control for spinning and direction
+- Canvas-based animation with realistic rotation effects
+- Sound effects for spinning
 
-This project is built with:
+## Notes
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- For the deployed version, the Python backend needs to be running on the user's computer
+- The frontend can be hosted separately and will connect to the local Python backend
 
-## How can I deploy this project?
+## License
 
-Simply open [Lovable](https://lovable.dev/projects/7e7ea012-3c44-42c0-bfb1-5b481a9f903e) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+This project is licensed under the MIT License - see the LICENSE file for details.
