@@ -51,22 +51,40 @@ const Index = () => {
     // Play sound
     if (audioRef.current) {
       audioRef.current.currentTime = 0;
+      audioRef.current.loop = true; // Loop the sound while spinning
       audioRef.current.play().catch(err => console.error("Audio play error:", err));
     }
     
     // Calculate spin duration based on hand movement speed
-    const spinDuration = Math.max(3000, Math.min(8000, 8000 - (speed * 5000)));
+    // Faster hand movement means longer spin time (more momentum)
+    const spinDuration = Math.max(5000, Math.min(10000, 8000 + (speed * 3000)));
     
     setTimeout(() => {
       // Calculate a random result between 0 and 40
       const randomResult = Math.floor(Math.random() * 41);
       setResult(randomResult);
-      setSpinning(false);
       
-      // Stop sound after spinning
-      if (audioRef.current) {
-        audioRef.current.pause();
-      }
+      // Don't stop spinning immediately to allow the wheel to slow down visually
+      setTimeout(() => {
+        setSpinning(false);
+        
+        // Stop sound after spinning
+        if (audioRef.current) {
+          // Fade out the sound gradually
+          const fadeAudio = setInterval(() => {
+            if (audioRef.current && audioRef.current.volume > 0.1) {
+              audioRef.current.volume -= 0.1;
+            } else {
+              if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current.volume = 1;
+                audioRef.current.loop = false;
+              }
+              clearInterval(fadeAudio);
+            }
+          }, 100);
+        }
+      }, 2000);
     }, spinDuration);
   };
 

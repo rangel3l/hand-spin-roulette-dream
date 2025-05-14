@@ -29,23 +29,60 @@ export const RouletteWheel = ({ spinning, spinSpeed, direction, result }: Roulet
     // Draw the roulette wheel
     drawRouletteWheel(ctx, canvas.width, canvas.height, result);
     
-    // Animation loop for spinning
+    // Animation variables
     let startTime: number | null = null;
     let animationFrameId: number;
     let currentRotation = 0;
+    let currentSpeed = spinning ? spinSpeed * 3 : 0; // Start with high speed
+    const slowdownRate = 0.98; // Rate at which the wheel slows down
+    const minSpeed = 0.001; // Minimum speed before stopping
+    
+    // Calculate final position based on result if available
+    const totalNumbers = 41;
+    const anglePerSegment = (2 * Math.PI) / totalNumbers;
+    let targetRotation = 0;
+    
+    if (result !== null && spinning) {
+      // Calculate how many segments to rotate to land on the result
+      // The formula ensures the wheel stops with the result at the top position
+      const resultSegment = result;
+      const extraRotations = 5; // Add extra rotations before stopping
+      targetRotation = -(resultSegment * anglePerSegment) + Math.PI/2 + (extraRotations * 2 * Math.PI);
+    }
     
     const animate = (timestamp: number) => {
-      if (!startTime) startTime = timestamp;
+      if (!startTime) {
+        startTime = timestamp;
+      }
       const elapsed = timestamp - startTime;
       
-      // Calculate rotation based on spin speed and direction
-      const speed = spinning ? spinSpeed * 0.3 : 0;
-      currentRotation += speed * direction;
+      // If spinning, gradually slow down
+      if (spinning) {
+        // Apply slowdown only after a certain time has passed
+        if (elapsed > 1000) {
+          currentSpeed *= slowdownRate;
+        }
+        
+        // Add rotation based on current speed and direction
+        currentRotation += currentSpeed * direction;
+        
+        // If speed is very low and we have a result, snap to the target position and stop
+        if (currentSpeed < minSpeed && result !== null) {
+          currentRotation = targetRotation;
+          drawRouletteWheel(ctx, canvas.width, canvas.height, result, currentRotation);
+          return; // Stop the animation
+        }
+      } else {
+        // If not spinning, maintain a minimum rotation or stop
+        if (elapsed < 1000) {
+          currentRotation += 0.01 * direction;
+        }
+      }
       
       // Draw the wheel with current rotation
       drawRouletteWheel(ctx, canvas.width, canvas.height, result, currentRotation);
       
-      // Continue animation if spinning
+      // Continue animation if spinning or if elapsed time is less than 1 second
       if (spinning || (elapsed < 1000 && !spinning)) {
         animationFrameId = requestAnimationFrame(animate);
       }
