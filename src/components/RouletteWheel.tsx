@@ -1,14 +1,16 @@
 
 import { useEffect, useRef } from "react";
+import { wheelItems } from "@/utils/wheelData";
 
 interface RouletteWheelProps {
   spinning: boolean;
   spinSpeed: number;
   direction: number;
   result: number | null;
+  isFullscreen: boolean;
 }
 
-export const RouletteWheel = ({ spinning, spinSpeed, direction, result }: RouletteWheelProps) => {
+export const RouletteWheel = ({ spinning, spinSpeed, direction, result, isFullscreen }: RouletteWheelProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
   // Colors for the wheel
@@ -95,7 +97,7 @@ export const RouletteWheel = ({ spinning, spinSpeed, direction, result }: Roulet
     return () => {
       cancelAnimationFrame(animationFrameId);
     };
-  }, [spinning, spinSpeed, direction, result]);
+  }, [spinning, spinSpeed, direction, result, isFullscreen]);
   
   // Function to draw the roulette wheel
   const drawRouletteWheel = (
@@ -188,7 +190,7 @@ export const RouletteWheel = ({ spinning, spinSpeed, direction, result }: Roulet
     // Restore context state
     ctx.restore();
     
-    // Add numbers
+    // Add text instead of numbers
     ctx.save();
     ctx.translate(center.x, center.y);
     ctx.rotate(rotation);
@@ -198,15 +200,9 @@ export const RouletteWheel = ({ spinning, spinSpeed, direction, result }: Roulet
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     
-    // The numbers on a roulette wheel
-    const numbers = [];
-    for (let i = 0; i <= 40; i++) {
-      numbers.push(i);
-    }
-    
     for (let i = 0; i < totalNumbers; i++) {
       const angle = i * anglePerSegment;
-      const number = numbers[i];
+      const wheelItem = wheelItems[i];
       
       // Position text in the middle of the segment
       const textRadius = radius * 0.75;
@@ -217,7 +213,9 @@ export const RouletteWheel = ({ spinning, spinSpeed, direction, result }: Roulet
       ctx.save();
       ctx.translate(x, y);
       ctx.rotate(angle + anglePerSegment / 2 + Math.PI / 2);
-      ctx.fillText(number.toString(), 0, 0);
+      
+      // Display different text based on fullscreen state
+      ctx.fillText(isFullscreen ? wheelItem.fullscreenText : wheelItem.text, 0, 0);
       ctx.restore();
     }
     
