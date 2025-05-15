@@ -192,15 +192,16 @@ export const RouletteWheel = ({ spinning, spinSpeed, direction, result, isFullsc
     // Restaurar estado do contexto
     ctx.restore();
     
-    // Adicionar faixa cinza semi-transparente para os números (semelhante à imagem de referência)
+    // Adicionando faixa cinza semi-transparente para os números - posicionada mais para fora
     ctx.save();
     ctx.translate(center.x, center.y);
     ctx.rotate(rotation);
     
-    // Desenhar uma faixa cinza para os números (como na imagem de referência)
+    // Aumentar o raio externo da faixa para posicionar os números mais distantes do centro
+    // Faixa mais fina e mais próxima da borda
     ctx.beginPath();
-    ctx.arc(0, 0, radius * 0.75, 0, 2 * Math.PI);
-    ctx.arc(0, 0, radius * 0.55, 0, 2 * Math.PI, true);
+    ctx.arc(0, 0, radius * 0.85, 0, 2 * Math.PI); // Aumentar raio externo (era 0.75)
+    ctx.arc(0, 0, radius * 0.70, 0, 2 * Math.PI, true); // Aumentar raio interno (era 0.55)
     ctx.fillStyle = "rgba(200, 200, 200, 0.7)";
     ctx.fill();
     
@@ -211,8 +212,8 @@ export const RouletteWheel = ({ spinning, spinSpeed, direction, result, isFullsc
     ctx.translate(center.x, center.y);
     ctx.rotate(rotation);
     
-    // Aumentar significativamente o tamanho da fonte para melhor visibilidade no modo fullscreen
-    const fontSize = isFullscreen ? 36 : 20;
+    // Ajustar tamanho da fonte para o modo fullscreen (um pouco menor para caber melhor)
+    const fontSize = isFullscreen ? 28 : 20; // Reduzir de 36 para 28
     ctx.font = `bold ${fontSize}px Arial`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
@@ -221,8 +222,8 @@ export const RouletteWheel = ({ spinning, spinSpeed, direction, result, isFullsc
       const angle = i * anglePerSegment;
       const wheelItem = wheelItems[i];
       
-      // Posicionar texto no meio da faixa cinza
-      const textRadius = radius * 0.65;
+      // Posicionar texto mais perto da borda da roleta
+      const textRadius = radius * 0.78; // Aumentar de 0.65 para 0.78
       const x = textRadius * Math.cos(angle + anglePerSegment / 2);
       const y = textRadius * Math.sin(angle + anglePerSegment / 2);
       
@@ -231,7 +232,6 @@ export const RouletteWheel = ({ spinning, spinSpeed, direction, result, isFullsc
       ctx.translate(x, y);
       
       // Ajustar a rotação do texto para que seja sempre legível
-      // Texto na parte superior da roda fica reto, texto na parte inferior fica invertido
       let textAngle = angle + anglePerSegment / 2;
       if (textAngle > Math.PI / 2 && textAngle < Math.PI * 3 / 2) {
         // Texto na metade inferior: girar para ficar de cabeça para baixo
@@ -246,7 +246,7 @@ export const RouletteWheel = ({ spinning, spinSpeed, direction, result, isFullsc
       
       // Adicionar borda preta ao texto para maior legibilidade
       ctx.strokeStyle = '#000000';
-      ctx.lineWidth = isFullscreen ? 4 : 2;
+      ctx.lineWidth = isFullscreen ? 3 : 2; // Borda um pouco mais fina
       ctx.strokeText(displayText, 0, 0);
       
       // Texto em preto para "AGAIN" e branco para números
