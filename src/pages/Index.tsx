@@ -85,8 +85,8 @@ const Index = () => {
     const spinDuration = Math.max(5000, Math.min(10000, 8000 + (speed * 3000)));
     
     setTimeout(() => {
-      // Calculate a random result between 0 and 40
-      const randomResult = Math.floor(Math.random() * 41);
+      // Calculate a random result between 0 and wheelItems.length-1
+      const randomResult = Math.floor(Math.random() * wheelItems.length);
       setResult(randomResult);
       
       // Don't stop spinning immediately to allow the wheel to slow down visually
@@ -120,9 +120,16 @@ const Index = () => {
     handleSpin();
   };
 
+  // Determinar o número do termo para exibir (para posições não-AGAIN)
+  const getTermNumber = () => {
+    if (result === null) return null;
+    const item = wheelItems[result];
+    return item.text === "AG" ? null : item.text;
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-green-800 p-4">
-      <h1 className="text-4xl font-bold text-yellow-400 mb-8">Roulette Wheel</h1>
+      <h1 className="text-4xl font-bold text-yellow-400 mb-8">Sistema Reprodutor - Roleta</h1>
       
       <div className="flex flex-col md:flex-row gap-8 items-center justify-center w-full">
         <div className="w-full max-w-md">
@@ -143,7 +150,9 @@ const Index = () => {
           {result !== null && (
             <div className="mt-6 p-4 bg-yellow-600 rounded-lg text-center">
               <h2 className="text-3xl font-bold text-white">
-                Result: {wheelItems[result]?.fullscreenText || ""}
+                {wheelItems[result]?.text === "AG" 
+                  ? "AGAIN - Gire novamente!" 
+                  : `Termo ${wheelItems[result]?.text}`}
               </h2>
             </div>
           )}
@@ -166,6 +175,7 @@ const Index = () => {
         onOpenChange={setModalOpen}
         result={result !== null ? wheelItems[result]?.fullscreenText : null}
         explanation={result !== null ? wheelItems[result]?.explanation : null}
+        termNumber={result !== null ? getTermNumber() : null}
       />
     </div>
   );
