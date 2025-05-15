@@ -13,8 +13,8 @@ interface RouletteWheelProps {
 export const RouletteWheel = ({ spinning, spinSpeed, direction, result, isFullscreen }: RouletteWheelProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
-  // Colors for the wheel
-  const colors = ["#B22222", "#000000"]; // Red and black
+  // Cores para a roleta
+  const colors = ["#B22222", "#000000"]; // Vermelho e preto
   
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -23,35 +23,34 @@ export const RouletteWheel = ({ spinning, spinSpeed, direction, result, isFullsc
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     
-    // Set canvas dimensions - make it bigger in fullscreen mode
+    // Definir dimensões do canvas - maior no modo fullscreen
     const size = isFullscreen 
-      ? Math.min(window.innerWidth * 0.9, window.innerHeight * 0.9, 900) // Larger in fullscreen
+      ? Math.min(window.innerWidth * 0.9, window.innerHeight * 0.9, 900)
       : Math.min(window.innerWidth * 0.8, 600);
     
     canvas.width = size;
     canvas.height = size;
     
-    // Draw the roulette wheel
+    // Desenhar a roleta
     drawRouletteWheel(ctx, canvas.width, canvas.height, result);
     
-    // Animation variables
+    // Variáveis de animação
     let startTime: number | null = null;
     let animationFrameId: number;
     let currentRotation = 0;
-    let currentSpeed = spinning ? spinSpeed * 3 : 0; // Start with high speed
-    const slowdownRate = 0.98; // Rate at which the wheel slows down
-    const minSpeed = 0.001; // Minimum speed before stopping
+    let currentSpeed = spinning ? spinSpeed * 3 : 0; // Iniciar com velocidade alta
+    const slowdownRate = 0.98; // Taxa de desaceleração
+    const minSpeed = 0.001; // Velocidade mínima antes de parar
     
-    // Calculate final position based on result if available
+    // Calcular posição final baseada no resultado se disponível
     const totalNumbers = 41;
     const anglePerSegment = (2 * Math.PI) / totalNumbers;
     let targetRotation = 0;
     
     if (result !== null && spinning) {
-      // Calculate how many segments to rotate to land on the result
-      // The formula ensures the wheel stops with the result at the top position
+      // Calcular quantos segmentos girar para parar no resultado
       const resultSegment = result;
-      const extraRotations = 5; // Add extra rotations before stopping
+      const extraRotations = 5; // Rotações extras antes de parar
       targetRotation = -(resultSegment * anglePerSegment) + Math.PI/2 + (extraRotations * 2 * Math.PI);
     }
     
@@ -61,48 +60,48 @@ export const RouletteWheel = ({ spinning, spinSpeed, direction, result, isFullsc
       }
       const elapsed = timestamp - startTime;
       
-      // If spinning, gradually slow down
+      // Se girando, desacelerar gradualmente
       if (spinning) {
-        // Apply slowdown only after a certain time has passed
+        // Aplicar desaceleração após um certo tempo
         if (elapsed > 1000) {
           currentSpeed *= slowdownRate;
         }
         
-        // Add rotation based on current speed and direction
+        // Adicionar rotação baseada na velocidade atual e direção
         currentRotation += currentSpeed * direction;
         
-        // If speed is very low and we have a result, snap to the target position and stop
+        // Se a velocidade for muito baixa e temos um resultado, ir para a posição alvo e parar
         if (currentSpeed < minSpeed && result !== null) {
           currentRotation = targetRotation;
           drawRouletteWheel(ctx, canvas.width, canvas.height, result, currentRotation);
-          return; // Stop the animation
+          return; // Parar a animação
         }
       } else {
-        // If not spinning, maintain a minimum rotation or stop
+        // Se não estiver girando, manter rotação mínima ou parar
         if (elapsed < 1000) {
           currentRotation += 0.01 * direction;
         }
       }
       
-      // Draw the wheel with current rotation
+      // Desenhar a roleta com a rotação atual
       drawRouletteWheel(ctx, canvas.width, canvas.height, result, currentRotation);
       
-      // Continue animation if spinning or if elapsed time is less than 1 second
+      // Continuar animação se girando ou se o tempo decorrido for menor que 1 segundo
       if (spinning || (elapsed < 1000 && !spinning)) {
         animationFrameId = requestAnimationFrame(animate);
       }
     };
     
-    // Start animation
+    // Iniciar animação
     animationFrameId = requestAnimationFrame(animate);
     
-    // Clean up
+    // Limpar
     return () => {
       cancelAnimationFrame(animationFrameId);
     };
   }, [spinning, spinSpeed, direction, result, isFullscreen]);
   
-  // Function to draw the roulette wheel
+  // Função para desenhar a roleta
   const drawRouletteWheel = (
     ctx: CanvasRenderingContext2D, 
     width: number, 
@@ -112,28 +111,28 @@ export const RouletteWheel = ({ spinning, spinSpeed, direction, result, isFullsc
   ) => {
     const center = { x: width / 2, y: height / 2 };
     const radius = Math.min(width, height) / 2 - 10;
-    const innerRadius = radius * 0.3; // Center gold part
+    const innerRadius = radius * 0.3; // Parte central dourada
     
     ctx.clearRect(0, 0, width, height);
     
-    // Draw the outer gold ring
+    // Desenhar o anel externo dourado
     ctx.beginPath();
     ctx.arc(center.x, center.y, radius, 0, 2 * Math.PI);
-    ctx.fillStyle = "#FFD700"; // Gold
+    ctx.fillStyle = "#FFD700"; // Dourado
     ctx.fill();
     
-    // Number of segments (0-40 = 41 numbers)
+    // Número de segmentos (0-40 = 41 números)
     const totalNumbers = 41;
     const anglePerSegment = (2 * Math.PI) / totalNumbers;
     
-    // Save context state
+    // Salvar estado do contexto
     ctx.save();
     
-    // Move to center and apply rotation
+    // Mover para o centro e aplicar rotação
     ctx.translate(center.x, center.y);
     ctx.rotate(rotation);
     
-    // Draw segments
+    // Desenhar segmentos
     for (let i = 0; i < totalNumbers; i++) {
       const angle = i * anglePerSegment;
       const colorIndex = i % 2;
@@ -143,16 +142,16 @@ export const RouletteWheel = ({ spinning, spinSpeed, direction, result, isFullsc
       ctx.arc(0, 0, radius * 0.95, angle, angle + anglePerSegment);
       ctx.closePath();
       
-      // Special coloring for "AGAIN" positions (0, 10, 20, 30)
+      // Coloração especial para posições "AGAIN" (0, 10, 20, 30)
       if (i === 0 || i === 10 || i === 20 || i === 30) {
-        ctx.fillStyle = "#008000"; // Green for special "Again" numbers
+        ctx.fillStyle = "#008000"; // Verde para números especiais "Again"
       } else {
         ctx.fillStyle = colors[colorIndex];
       }
       
       ctx.fill();
       
-      // Add white separator lines between segments
+      // Adicionar linhas separadoras brancas entre segmentos
       ctx.beginPath();
       ctx.moveTo(0, 0);
       ctx.lineTo(radius * 0.95 * Math.cos(angle), radius * 0.95 * Math.sin(angle));
@@ -161,17 +160,17 @@ export const RouletteWheel = ({ spinning, spinSpeed, direction, result, isFullsc
       ctx.stroke();
     }
     
-    // Draw inner circle (gold center)
+    // Desenhar círculo interno (centro dourado)
     ctx.beginPath();
     ctx.arc(0, 0, innerRadius, 0, 2 * Math.PI);
     ctx.fillStyle = "#CD7F32"; // Bronze
     ctx.fill();
     
-    // Draw ball holders
+    // Desenhar suportes de bola
     for (let i = 0; i < 4; i++) {
       const ballAngle = i * (Math.PI / 2);
       
-      // Draw ball holder arm
+      // Desenhar braço do suporte da bola
       ctx.beginPath();
       ctx.moveTo(0, 0);
       ctx.lineTo(innerRadius * 2 * Math.cos(ballAngle), innerRadius * 2 * Math.sin(ballAngle));
@@ -179,7 +178,7 @@ export const RouletteWheel = ({ spinning, spinSpeed, direction, result, isFullsc
       ctx.lineWidth = 10;
       ctx.stroke();
       
-      // Draw ball
+      // Desenhar bola
       ctx.beginPath();
       ctx.arc(
         innerRadius * 2 * Math.cos(ballAngle), 
@@ -190,16 +189,30 @@ export const RouletteWheel = ({ spinning, spinSpeed, direction, result, isFullsc
       ctx.fill();
     }
     
-    // Restore context state
+    // Restaurar estado do contexto
     ctx.restore();
     
-    // Add text with improved visibility and positioning
+    // Adicionar faixa cinza semi-transparente para os números (semelhante à imagem de referência)
     ctx.save();
     ctx.translate(center.x, center.y);
     ctx.rotate(rotation);
     
-    // Significantly increase font size for better visibility in fullscreen mode
-    const fontSize = isFullscreen ? 32 : 16;
+    // Desenhar uma faixa cinza para os números (como na imagem de referência)
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 0.75, 0, 2 * Math.PI);
+    ctx.arc(0, 0, radius * 0.55, 0, 2 * Math.PI, true);
+    ctx.fillStyle = "rgba(200, 200, 200, 0.7)";
+    ctx.fill();
+    
+    ctx.restore();
+    
+    // Adicionar texto com visibilidade e posicionamento melhorados
+    ctx.save();
+    ctx.translate(center.x, center.y);
+    ctx.rotate(rotation);
+    
+    // Aumentar significativamente o tamanho da fonte para melhor visibilidade no modo fullscreen
+    const fontSize = isFullscreen ? 36 : 20;
     ctx.font = `bold ${fontSize}px Arial`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
@@ -208,52 +221,51 @@ export const RouletteWheel = ({ spinning, spinSpeed, direction, result, isFullsc
       const angle = i * anglePerSegment;
       const wheelItem = wheelItems[i];
       
-      // Position text in the middle of the segment, further from center in fullscreen
-      // Adjust placement to avoid overlapping with dividers
-      const textRadius = radius * (isFullscreen ? 0.60 : 0.75);
+      // Posicionar texto no meio da faixa cinza
+      const textRadius = radius * 0.65;
       const x = textRadius * Math.cos(angle + anglePerSegment / 2);
       const y = textRadius * Math.sin(angle + anglePerSegment / 2);
       
-      // Rotate text to be readable
+      // Rotacionar texto para ser legível
       ctx.save();
       ctx.translate(x, y);
-      ctx.rotate(angle + anglePerSegment / 2 + Math.PI / 2);
       
-      // Create a stronger text outline for better readability
-      if (isFullscreen) {
-        // Draw white background for better contrast
-        ctx.fillStyle = "rgba(255,255,255,0.5)";
-        const textWidth = ctx.measureText(wheelItem.fullscreenText).width;
-        ctx.fillRect(-textWidth/2 - 5, -fontSize/2 - 5, textWidth + 10, fontSize + 10);
-        
-        // Draw text shadow for additional contrast
-        ctx.fillStyle = "rgba(0,0,0,0.7)";
-        ctx.fillText(wheelItem.fullscreenText, 2, 2);
-        
-        // Draw text outline for better visibility
-        ctx.strokeStyle = '#000000';
-        ctx.lineWidth = 3;
-        ctx.strokeText(wheelItem.fullscreenText, 0, 0);
-        
-        // Then draw the text in darker color for contrast against white background
-        ctx.fillStyle = "#000000";
-        ctx.fillText(wheelItem.fullscreenText, 0, 0);
+      // Ajustar a rotação do texto para que seja sempre legível
+      // Texto na parte superior da roda fica reto, texto na parte inferior fica invertido
+      let textAngle = angle + anglePerSegment / 2;
+      if (textAngle > Math.PI / 2 && textAngle < Math.PI * 3 / 2) {
+        // Texto na metade inferior: girar para ficar de cabeça para baixo
+        ctx.rotate(textAngle + Math.PI);
       } else {
-        // Simple text for non-fullscreen mode
-        ctx.fillStyle = "#FFFFFF";
-        ctx.strokeStyle = '#000000';
-        ctx.lineWidth = 1;
-        ctx.strokeText(wheelItem.text, 0, 0);
-        ctx.fillText(wheelItem.text, 0, 0);
+        // Texto na metade superior: rotação normal
+        ctx.rotate(textAngle);
       }
       
+      // Texto grande e contrastante para melhor legibilidade
+      const displayText = isFullscreen ? wheelItem.fullscreenText : wheelItem.text;
+      
+      // Adicionar borda preta ao texto para maior legibilidade
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = isFullscreen ? 4 : 2;
+      ctx.strokeText(displayText, 0, 0);
+      
+      // Texto em preto para "AGAIN" e branco para números
+      if (displayText === "AGAIN" || displayText === "AG") {
+        // Texto para "AGAIN" em preto
+        ctx.fillStyle = "#000000";
+      } else {
+        // Texto para números em branco
+        ctx.fillStyle = "#FFFFFF";
+      }
+      
+      ctx.fillText(displayText, 0, 0);
       ctx.restore();
     }
     
     ctx.restore();
     
-    // Draw pointer/needle at the top
-    const needleSize = isFullscreen ? 40 : 20; // Larger in fullscreen
+    // Desenhar ponteiro/agulha no topo
+    const needleSize = isFullscreen ? 40 : 20; // Maior no modo fullscreen
     
     ctx.beginPath();
     ctx.moveTo(center.x, center.y - radius - 5);
@@ -263,7 +275,7 @@ export const RouletteWheel = ({ spinning, spinSpeed, direction, result, isFullsc
     ctx.fillStyle = "#FF0000";
     ctx.fill();
     
-    // Add a black stroke around the needle for better visibility
+    // Adicionar contorno preto ao redor do ponteiro para melhor visibilidade
     ctx.strokeStyle = "#000000";
     ctx.lineWidth = 2;
     ctx.stroke();
