@@ -193,15 +193,14 @@ export const RouletteWheel = ({ spinning, spinSpeed, direction, result, isFullsc
     // Restore context state
     ctx.restore();
     
-    // Add text - with improved readability for fullscreen
+    // Add text with improved visibility and positioning
     ctx.save();
     ctx.translate(center.x, center.y);
     ctx.rotate(rotation);
     
-    // Increase font size and add stroke for better visibility in fullscreen mode
-    const fontSize = isFullscreen ? 24 : 16;
+    // Significantly increase font size for better visibility in fullscreen mode
+    const fontSize = isFullscreen ? 28 : 16;
     ctx.font = `bold ${fontSize}px Arial`;
-    ctx.fillStyle = "#FFFFFF";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     
@@ -209,9 +208,9 @@ export const RouletteWheel = ({ spinning, spinSpeed, direction, result, isFullsc
       const angle = i * anglePerSegment;
       const wheelItem = wheelItems[i];
       
-      // Position text in the middle of the segment
-      // Move text slightly more outward in fullscreen for better positioning
-      const textRadius = radius * (isFullscreen ? 0.70 : 0.75);
+      // Position text in the middle of the segment, further from center in fullscreen
+      // Adjust placement to avoid overlapping with dividers
+      const textRadius = radius * (isFullscreen ? 0.65 : 0.75);
       const x = textRadius * Math.cos(angle + anglePerSegment / 2);
       const y = textRadius * Math.sin(angle + anglePerSegment / 2);
       
@@ -220,22 +219,36 @@ export const RouletteWheel = ({ spinning, spinSpeed, direction, result, isFullsc
       ctx.translate(x, y);
       ctx.rotate(angle + anglePerSegment / 2 + Math.PI / 2);
       
-      // Add text stroke for better visibility in fullscreen
+      // Create a stronger text outline for better readability
       if (isFullscreen) {
+        // First draw text shadow for additional contrast
+        ctx.fillStyle = "rgba(0,0,0,0.7)";
+        ctx.fillText(wheelItem.fullscreenText, 2, 2);
+        
+        // Draw text outline for better visibility (thicker in fullscreen)
         ctx.strokeStyle = '#000000';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 3;
         ctx.strokeText(wheelItem.fullscreenText, 0, 0);
+        
+        // Then draw the text in white
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillText(wheelItem.fullscreenText, 0, 0);
+      } else {
+        // Simple text for non-fullscreen mode
+        ctx.fillStyle = "#FFFFFF";
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 1;
+        ctx.strokeText(wheelItem.text, 0, 0);
+        ctx.fillText(wheelItem.text, 0, 0);
       }
       
-      // Display different text based on fullscreen state
-      ctx.fillText(isFullscreen ? wheelItem.fullscreenText : wheelItem.text, 0, 0);
       ctx.restore();
     }
     
     ctx.restore();
     
     // Draw pointer/needle at the top
-    const needleSize = isFullscreen ? 30 : 20; // Larger in fullscreen
+    const needleSize = isFullscreen ? 40 : 20; // Larger in fullscreen
     
     ctx.beginPath();
     ctx.moveTo(center.x, center.y - radius - 5);
@@ -244,6 +257,11 @@ export const RouletteWheel = ({ spinning, spinSpeed, direction, result, isFullsc
     ctx.closePath();
     ctx.fillStyle = "#FF0000";
     ctx.fill();
+    
+    // Add a black stroke around the needle for better visibility
+    ctx.strokeStyle = "#000000";
+    ctx.lineWidth = 2;
+    ctx.stroke();
   };
   
   return (
