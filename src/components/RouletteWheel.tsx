@@ -143,8 +143,8 @@ export const RouletteWheel = ({ spinning, spinSpeed, direction, result, isFullsc
       ctx.arc(0, 0, radius * 0.95, angle, angle + anglePerSegment);
       ctx.closePath();
       
-      // Special coloring for 0 and every 10th number (Again!)
-      if (i === 0 || i % 10 === 0) {
+      // Special coloring for "AGAIN" positions (0, 10, 20, 30)
+      if (i === 0 || i === 10 || i === 20 || i === 30) {
         ctx.fillStyle = "#008000"; // Green for special "Again" numbers
       } else {
         ctx.fillStyle = colors[colorIndex];
@@ -199,7 +199,7 @@ export const RouletteWheel = ({ spinning, spinSpeed, direction, result, isFullsc
     ctx.rotate(rotation);
     
     // Significantly increase font size for better visibility in fullscreen mode
-    const fontSize = isFullscreen ? 28 : 16;
+    const fontSize = isFullscreen ? 32 : 16;
     ctx.font = `bold ${fontSize}px Arial`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
@@ -210,7 +210,7 @@ export const RouletteWheel = ({ spinning, spinSpeed, direction, result, isFullsc
       
       // Position text in the middle of the segment, further from center in fullscreen
       // Adjust placement to avoid overlapping with dividers
-      const textRadius = radius * (isFullscreen ? 0.65 : 0.75);
+      const textRadius = radius * (isFullscreen ? 0.60 : 0.75);
       const x = textRadius * Math.cos(angle + anglePerSegment / 2);
       const y = textRadius * Math.sin(angle + anglePerSegment / 2);
       
@@ -221,17 +221,22 @@ export const RouletteWheel = ({ spinning, spinSpeed, direction, result, isFullsc
       
       // Create a stronger text outline for better readability
       if (isFullscreen) {
-        // First draw text shadow for additional contrast
+        // Draw white background for better contrast
+        ctx.fillStyle = "rgba(255,255,255,0.5)";
+        const textWidth = ctx.measureText(wheelItem.fullscreenText).width;
+        ctx.fillRect(-textWidth/2 - 5, -fontSize/2 - 5, textWidth + 10, fontSize + 10);
+        
+        // Draw text shadow for additional contrast
         ctx.fillStyle = "rgba(0,0,0,0.7)";
         ctx.fillText(wheelItem.fullscreenText, 2, 2);
         
-        // Draw text outline for better visibility (thicker in fullscreen)
+        // Draw text outline for better visibility
         ctx.strokeStyle = '#000000';
         ctx.lineWidth = 3;
         ctx.strokeText(wheelItem.fullscreenText, 0, 0);
         
-        // Then draw the text in white
-        ctx.fillStyle = "#FFFFFF";
+        // Then draw the text in darker color for contrast against white background
+        ctx.fillStyle = "#000000";
         ctx.fillText(wheelItem.fullscreenText, 0, 0);
       } else {
         // Simple text for non-fullscreen mode
